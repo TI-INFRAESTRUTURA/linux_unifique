@@ -9,7 +9,7 @@
         regexp: '^#?Port '
         line: 'Port 10022'
         state: present
-        backup: yes
+        # backup: yes
 
     - name: Reiniciar o serviço SSH (Debian)
       service:
