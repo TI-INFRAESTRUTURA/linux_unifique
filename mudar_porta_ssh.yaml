@@ -4,12 +4,13 @@
   become: yes
   tasks:
     - name: Alterar a configuração da porta no sshd_config
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^#?Port '
-        line: 'Port 10022'
-        state: present
-        backup: yes
+    become: yes
+    lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?Port '
+    line: 'Port 10022'
+    state: present
+    backup: yes
 
     - name: Reiniciar o serviço SSH (Debian)
       service:
