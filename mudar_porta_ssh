@@ -1,0 +1,31 @@
+---
+- name: Alterar porta SSH para 10022
+  hosts: all
+  become: yes
+  tasks:
+    - name: Alterar a configuração da porta no sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port '
+        line: 'Port 10022'
+        state: present
+        backup: yes
+
+    - name: Permitir a nova porta no firewall (firewalld)
+      firewalld:
+        port: 10022/tcp
+        permanent: yes
+        state: enabled
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Permitir a nova porta no firewall (ufw)
+      ufw:
+        rule: allow
+        port: '10022'
+        proto: tcp
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Reiniciar o serviço SSH
+      service:
+        name: sshd
+        state: restarted
