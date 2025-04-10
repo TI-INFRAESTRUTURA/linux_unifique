@@ -11,21 +11,6 @@
         state: present
         backup: yes
 
-    - name: Permitir a nova porta no firewall (firewalld)
-      firewalld:
-        port: 10022/tcp
-        permanent: yes
-        state: enabled
-        immediate: yes
-      when: ansible_facts['os_family'] == "RedHat"
-
-    - name: Permitir a nova porta no ufw
-      ufw:
-        rule: allow
-        port: '10022'
-        proto: tcp
-      when: ansible_facts['os_family'] == "Debian"
-
     - name: Reiniciar o serviço SSH (Debian)
       service:
         name: ssh
