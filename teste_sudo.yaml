@@ -1,0 +1,12 @@
+---
+- name: Testar se o become (sudo) está funcionando
+  hosts: all
+  become: yes
+  tasks:
+    - name: Verificar usuário atual com become
+      command: whoami
+      register: resultado
+
+    - name: Mostrar o resultado do become
+      debug:
+        msg: "Usuário com sudo: {{ resultado.stdout }}"
