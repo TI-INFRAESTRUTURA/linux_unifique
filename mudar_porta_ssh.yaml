@@ -2,6 +2,8 @@
 - name: Alterar porta SSH para 10022
   hosts: all
   become: yes
+  become_method: sudo
+  become_user: root
   tasks:
     - name: Alterar a configuração da porta no sshd_config
       lineinfile:
@@ -9,7 +11,7 @@
         regexp: '^#?Port '
         line: 'Port 10022'
         state: present
-        backup: no
+        backup: yes
 
     - name: Reiniciar o serviço SSH (Debian)
       service:
@@ -22,3 +24,4 @@
         name: sshd
         state: restarted
       when: ansible_facts['os_family'] == "RedHat"
+
