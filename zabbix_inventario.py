@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
+
 import requests
 import json
+import sys
 
 # Configurações da API do Zabbix
 zabbix_url = "https://zabbix-ti.redeunifique.com.br/api_jsonrpc.php"
@@ -31,6 +34,7 @@ def get_group_id(group_name):
         "id": 1
     }
     response = requests.post(zabbix_url, data=json.dumps(payload), headers=headers)
+    response.raise_for_status()
     result = response.json()["result"]
     return result[0]["groupid"] if result else None
 
@@ -44,7 +48,6 @@ inventory = {
 for group in host_groups:
     group_id = get_group_id(group)
     if not group_id:
-        print(f"Grupo '{group}' não encontrado no Zabbix.")
         continue
 
     payload = {
@@ -67,20 +70,18 @@ for group in host_groups:
     }
 
     response = requests.post(zabbix_url, data=json.dumps(payload), headers=headers)
+    response.raise_for_status()
     hosts = response.json()["result"]
 
-    group_key = group.lower().replace(" ", "_")
+    group_key = group.lower().replace(" ", "_").replace("/", "_")
     inventory[group_key] = {"hosts": []}
 
     for host in hosts:
-        visible_name = host.get("name", host["host"])  # usa o nome visível se disponível
+        visible_name = host.get("name", host["host"])
         ip = host["interfaces"][0]["ip"] if host.get("interfaces") else None
         if ip:
             inventory[group_key]["hosts"].append(ip)
             inventory["_meta"]["hostvars"][ip] = {"hostname": visible_name}
 
-# Salvar em arquivo JSON
-with open("inventario_awx.json", "w") as f:
-    json.dump(inventory, f, indent=2)
-
-print("Inventário salvo como 'inventario_awx.json'")
+# Imprimir inventário no stdout
+print(json.dumps(inventory, indent=2))
